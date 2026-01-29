@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCG Images Repository</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .info-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .image-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .image-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .image-card .url {
+            font-size: 12px;
+            color: #666;
+            word-break: break-all;
+            margin-top: 10px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .instructions {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-left: 4px solid #2196F3;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>TCG Images Repository</h1>
+    
+    <div class="info-box">
+        <h2>About</h2>
+        <p>This is a GitHub Pages site hosting Trading Card Game (TCG) images. The URLs provided here can be used in backend projects to generate CSV files for eBay's bulk upload tool.</p>
+    </div>
+
+    <div class="info-box">
+        <h2>Base URL</h2>
+        <p>All images are accessible via the base URL:</p>
+        <code>https://gitwilldone.github.io/tcg-images.github.io/images/</code>
+    </div>
+
+    <div class="instructions">
+        <h3>How to Use</h3>
+        <p><strong>Image URL Format:</strong></p>
+        <code>https://gitwilldone.github.io/tcg-images.github.io/images/{set-name}/{card-name}.jpg</code>
+        <p style="margin-top: 15px;"><strong>Example:</strong></p>
+        <code>https://gitwilldone.github.io/tcg-images.github.io/images/base-set/charizard.jpg</code>
+    </div>
+
+    <div class="info-box">
+        <h2>Directory Structure</h2>
+        <pre>
+images/
+├── base-set/
+│   └── (card images)
+├── fossil/
+│   └── (card images)
+├── jungle/
+│   └── (card images)
+└── (other sets...)</pre>
+    </div>
+
+    <div class="info-box">
+        <h2>Image Manifest</h2>
+        <p>A JSON manifest of all available images is available at:</p>
+        <code>https://gitwilldone.github.io/tcg-images.github.io/manifest.json</code>
+        <p style="margin-top: 10px;">This manifest can be used to programmatically access all image URLs for bulk operations.</p>
+    </div>
+
+    <div id="imageList" class="image-grid">
+        <!-- Images will be loaded dynamically if manifest.json exists -->
+    </div>
+
+    <script>
+        // Load and display images from manifest.json if it exists
+        fetch('manifest.json')
+            .then(response => response.json())
+            .then(data => {
+                const imageList = document.getElementById('imageList');
+                if (data.images && data.images.length > 0) {
+                    const header = document.createElement('h2');
+                    header.style.gridColumn = '1/-1';
+                    header.textContent = 'Available Images';
+                    imageList.appendChild(header);
+                    
+                    data.images.forEach(image => {
+                        const card = document.createElement('div');
+                        card.className = 'image-card';
+                        
+                        const img = document.createElement('img');
+                        img.src = image.url || '';
+                        img.alt = `${image.name || 'Card image'}${image.set ? ' from ' + image.set : ''}`;
+                        img.onerror = function() { 
+                            this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="280" viewBox="0 0 200 280"%3E%3Crect fill="%23f0f0f0" width="200" height="280"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle"%3EImage Not Found%3C/text%3E%3C/svg%3E';
+                        };
+                        
+                        const nameDiv = document.createElement('div');
+                        const nameStrong = document.createElement('strong');
+                        nameStrong.textContent = image.name || 'Unknown';
+                        nameDiv.appendChild(nameStrong);
+                        
+                        const urlDiv = document.createElement('div');
+                        urlDiv.className = 'url';
+                        urlDiv.textContent = image.url || '';
+                        
+                        card.appendChild(img);
+                        card.appendChild(nameDiv);
+                        card.appendChild(urlDiv);
+                        imageList.appendChild(card);
+                    });
+                }
+            })
+            .catch(error => {
+                console.log('No manifest.json found or error loading it:', error);
+            });
+    </script>
+</body>
+</html>
